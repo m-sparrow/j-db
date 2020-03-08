@@ -18,7 +18,7 @@ var main = function() {
    }
  }) */
 
- // test
+ // test 1
 
 /*   table.putItem('MyDB2', 'MyTable',
     {"id" : "id1", "sk2":"sk2-1-value", "sk1" : "sk1-1-value"},
