@@ -3,6 +3,7 @@ var db = require('./core/db/index.js')
 var table = require('./core/table/index.js')
 
 var main = function() {
+  // Adding comments
   // db.createDB('MyDB2')
   // console.log(db.listTables('MyDB2'))
    /* table.createTable('MyDB2', 'MyTable2', {
