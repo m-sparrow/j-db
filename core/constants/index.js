@@ -1,0 +1,7 @@
+exports.table_space_base_path = '/tables/'
+exports.meta_space_base_path = '/meta/'
+exports.items_space_base_path = '/items/'
+exports.keys_space_base_path = '/keys/'
+exports.index_space_base_path = '/index/'
+exports.input_keys_seperator = '?'
+exports.input_keys_array_seperator = '#'
