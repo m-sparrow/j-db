@@ -5,11 +5,31 @@ const constants = require('../constants/index.js')
 const utils = require('../utils/index.js')
 
 exports.createDB = (name) => {
-  jfolder.createJfolder(config.db_base_path, name)
-  jfolder.createJfolder(config.db_base_path + name, constants.table_space_base_path)
+  var basePath = utils.getDBBasePath()
+  try {
+    if(!fs.existsSync(basePath)) {
+      jfolder.createJfolder(basePath)
+    }
+    jfolder.createJfolder(basePath, name)
+    jfolder.createJfolder(basePath + name, constants.table_space_base_path)
+    return utils.frameSuccessResponse('create-db', name, 200, 'Success', '')
+  } catch (err) {
+    return utils.frameErrorResponse('create-db', name, 500, 'Error', err)
+  }
+}
+
+exports.listDBs = () => {
+  try {
+    return utils.frameSuccessResponse('list-all-dbs', 'DB', 200, 'Success', fs.readdirSync (utils.getDBBasePath()))
+  } catch (err) {
+    return utils.frameErrorResponse('list-all-dbs', 'DB', 500, 'Error', err)
+  }
 }
 
 exports.listTables = (db) => {
-  path = utils.getTableBasePath(db)
-  return fs.readdirSync (path)
+  try {
+    return utils.frameSuccessResponse('list-all-tables', db, 200, 'Success', fs.readdirSync(utils.getTableBasePath(db)))
+  } catch (err) {
+    return utils.frameErrorResponse('list-all-tables', db, 500, 'Error', err)
+  }
 }

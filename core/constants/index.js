@@ -1,3 +1,4 @@
+exports.db_space_base_path = '/dbs/'
 exports.table_space_base_path = '/tables/'
 exports.meta_space_base_path = '/meta/'
 exports.items_space_base_path = '/items/'

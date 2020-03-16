@@ -7,135 +7,195 @@ const config = require('../config/index.js')
 
 
 exports.createTable =  (db, table, options) => {
-  createTable(db, table, options)
-  createTableMetaData(db, table, options)
-  createTableKeysSpace(db, table, options)
-  createIndexSpace(db, table, options)
+  try {
+    createTableBasicStructure(db, table, options)
+    createTableMetaData(db, table, options)
+    createTableKeysSpace(db, table, options)
+    createIndexSpace(db, table, options)
+    return utils.frameSuccessResponse('create-table', table, 200, 'Success','')
+  } catch (err) {
+    return utils.frameErrorResponse('create-table', table, 500, 'Error',err)
+  }
 }
 
 exports.scanKeys = (db, table, path) => {
-  path = utils.getTableBasePath(db) + table +
-                    constants.keys_space_base_path + path + config.file_sperator
-  path = path.replace(/[?]/g, config.file_sperator)
-  var files = fs.readdirSync (path)
-  if(files.includes(config.item_file)) {
-    if(files.length > 1) {
-      files.splice(files.indexOf(config.item_file), 1)
+  var payload
+  try {
+    path = utils.getTableBasePath(db) + table + constants.keys_space_base_path + path + config.file_sperator
+    path = path.replace(/[?]/g, config.file_sperator)
+    var files = fs.readdirSync (path)
+    if(files.includes(config.item_file)) {
+      if(files.length > 1) {
+        files.splice(files.indexOf(config.item_file), 1)
+      } else {
+        payload = jfiles.readData(path + config.item_file)
+      }
     } else {
-      return jfiles.readData(path + config.item_file)
+      payload =  files
     }
+    return utils.frameSuccessResponse('scan-keys', table, 200, 'Success',payload)
+  } catch (err) {
+    return utils.frameErrorResponse('scan-keys', table, 500, 'Error',err)
   }
-  return files
+
 }
 
-exports.putItem = (db, table, keys, item) => {
-  var metaData = readMetaData(db, table)
-  var path = utils.getTableBasePath(db) + table + constants.keys_space_base_path +
-                      metaData.pk + config.file_sperator
-  path += keys[metaData.pk] + config.file_sperator
-  for(var key in metaData.sk) {
-    var sk = metaData.sk[key]
-    var skVal = keys[sk]
-    if(!skVal) {
-      throw new Error(sk + ' Missing')
+exports.putItem = (db, table, options) => {
+  try {
+    var itemPath = getItemPath(db, table, options.keys, true)
+    if(!fs.existsSync(itemPath + config.item_file)) {
+      jfiles.writeData(itemPath, config.item_file, JSON.stringify(options.item, null, 2))
+      return utils.frameSuccessResponse('put-item', table, 200, 'Success', JSON.stringify(options.item))
+    } else {
+      throw new Error('Cannot ovverride the item. Invalid Operation.')
     }
-    path += sk + config.file_sperator + skVal + config.file_sperator
-   }
-  jfolder.createJfolder(path)
-  jfiles.writeData(path, config.item_file, JSON.stringify(item, null, 2))
+  } catch (err) {
+    return utils.frameErrorResponse('put-item', table, 500, 'Error',err)
+  }
 }
 
-exports.getItem = (db, table, keys) => {
-  return readItem(db, table, keys)
+exports.getItem = (db, table, options) => {
+  try {
+    return utils.frameSuccessResponse('get-item', table, 200, 'Success', JSON.stringify(readItem(db, table, options.keys)))
+  } catch (err) {
+    return utils.frameErrorResponse('get-item', table, 500, 'Error', err)
+  }
+
 }
 
-exports.deleteItem =  (db, table, keys) => {
-  var pathStack = []
-  var metaData = readMetaData(db, table)
-  var path = utils.getTableBasePath(db) + table +
-                    constants.keys_space_base_path + metaData.pk + config.file_sperator +
-                      keys[metaData.pk] + config.file_sperator
-  pathStack.push(path)
-  for(var key in metaData.sk) {
-    var sk = metaData.sk[key]
-    var skVal = keys[sk]
-    if(!skVal) {
-      throw new Error(sk + ' Missing')
-    }
-    path += sk + config.file_sperator
+exports.deleteItem =  (db, table, options) => {
+  try {
+    var keys = options.keys
+    var pathStack = []
+    var metaData = readMetaData(db, table)
+    var path = utils.getTableBasePath(db) + table + constants.keys_space_base_path +
+                metaData.pk + config.file_sperator + keys[metaData.pk] + config.file_sperator
     pathStack.push(path)
-    path += skVal + config.file_sperator
-    pathStack.push(path)
-   }
-   fs.unlinkSync(path + config.item_file)
-   while(pathStack.length > 0) {
-     var dirPath = pathStack.pop()
-     // console.log(dirPath)
-     var files = fs.readdirSync (dirPath)
-     if(files.length == 0) {
-       fs.rmdirSync(dirPath)
+    for(var key in metaData.sk) {
+      var sk = metaData.sk[key]
+      var skVal = keys[sk]
+      if(!skVal) {
+        throw new Error(sk + ' : Key Missing')
+      }
+      path += sk + config.file_sperator
+      pathStack.push(path)
+      path += skVal + config.file_sperator
+      pathStack.push(path)
      }
+     var payload = readItem(db, table, keys)
+     fs.unlinkSync(path + config.item_file)
+     while(pathStack.length > 0) {
+       var dirPath = pathStack.pop()
+       var files = fs.readdirSync (dirPath)
+       if(files.length == 0) {
+         fs.rmdirSync(dirPath)
+       }
+      }
+      return utils.frameSuccessResponse('delete-item', table, 200, 'Success', JSON.stringify(payload))
+  } catch (err) {
+    return utils.frameErrorResponse('delete-item', table, 500, 'Error', err)
+  }
+}
+
+exports.updateItem = (db, table, options) => {
+  try {
+    var itemPath = getItemPath(db, table, options.keys)
+    var payload  = {}
+    var elements = options.path.split(constants.input_keys_seperator)
+    var item = readItem(db, table, options.keys)
+    var deepCloneItem = JSON.parse(JSON.stringify(item))
+
+    if(elements.length == 0 ) {
+      return
     }
+
+    if(elements.length == 1) {
+      updateElement(elements[0], deepCloneItem, options.obj)
+    } else {
+      var deepCloneItemPointer = traverseItem(elements, deepCloneItem)
+      updateElement(elements[0], deepCloneItemPointer, options.obj)
+    }
+
+    payload.old = item
+    payload.new  = deepCloneItem
+
+    if(fs.existsSync(itemPath + config.item_file)) {
+      jfiles.writeData(itemPath, config.item_file, JSON.stringify(payload.new, null, 2))
+      return utils.frameSuccessResponse('update-item', table, 200, 'Success', JSON.stringify(payload))
+    } else {
+      throw new Error('Cannot Update the item. Invalid Operation.')
+    }
+  } catch (err) {
+    return utils.frameErrorResponse('update-item', table, 500, 'Error', err)
+  }
 }
 
-exports.updateItem = (db, table, keys, path, obj) => {
-  var elements = path.split(constants.input_keys_seperator)
-  var item = readItem(db, table, keys)
-  console.log(JSON.stringify(item))
-  var deepCloneItem = JSON.parse(JSON.stringify(item))
+exports.addItemElement = (db, table, options) => {
+  try {
+    var itemPath = getItemPath(db, table, options.keys)
+    var payload  = {}
+    var elements = options.path.split(constants.input_keys_seperator)
+    var item = readItem(db, table, options.keys)
+    var deepCloneItem = JSON.parse(JSON.stringify(item))
 
-  if(elements.length == 0 ) {
-    return
-  }
+    if(elements.length == 0 ) {
+      return
+    }
 
-  if(elements.length == 1) {
-    updateElement(elements[0], deepCloneItem, obj)
-  } else {
-    var deepCloneItemPointer = traverseItem(elements, deepCloneItem)
-    updateElement(elements[0], deepCloneItemPointer, obj)
+    if(elements.length == 1) {
+      addElement(elements[0], deepCloneItem, options.tag, options.obj)
+    } else {
+      var deepCloneItemPointer = traverseItem(elements, deepCloneItem)
+      addElement(elements[0], deepCloneItemPointer, options.tag, options.obj)
+    }
+
+    payload.old = item
+    payload.new = deepCloneItem
+
+    if(fs.existsSync(itemPath + config.item_file)) {
+      jfiles.writeData(itemPath, config.item_file, JSON.stringify(payload.new, null, 2))
+      return utils.frameSuccessResponse('add-item-element', table, 200, 'Success', JSON.stringify(payload))
+    } else {
+      throw new Error('Cannot Update the item. Invalid Operation.')
+    }
+  } catch (err) {
+    return utils.frameErrorResponse('add-item-element', table, 500, 'Error', err)
   }
-  console.log(JSON.stringify(deepCloneItem))
 }
 
-exports.addItemElement = (db, table, keys, path, tag, obj) => {
-  var elements = path.split(constants.input_keys_seperator)
-  var item = readItem(db, table, keys)
-  console.log(item)
-  var deepCloneItem = JSON.parse(JSON.stringify(item))
+exports.removeItemElement = (db, table, options) => {
+  try {
+    var itemPath = getItemPath(db, table, options.keys)
+    var payload  = {}
+    var elements = options.path.split(constants.input_keys_seperator)
+    var item = readItem(db, table, options.keys)
+    var deepCloneItem = JSON.parse(JSON.stringify(item))
 
-  if(elements.length == 0 ) {
-    return
-  }
+    if(elements.length == 0 ) {
+      return
+    }
 
-  if(elements.length == 1) {
-    addElement(elements[0], deepCloneItem, tag, obj)
-  } else {
-    var deepCloneItemPointer = traverseItem(elements, deepCloneItem)
-    addElement(elements[0], deepCloneItemPointer, tag, obj)
+    if(elements.length == 1) {
+      removeElement(elements[0], deepCloneItem)
+    } else {
+      var deepCloneItemPointer = traverseItem(elements, deepCloneItem)
+      removeElement(elements[0], deepCloneItemPointer)
+    }
+    payload.old = item
+    payload.new  = deepCloneItem
+
+    if(fs.existsSync(itemPath + config.item_file)) {
+      jfiles.writeData(itemPath, config.item_file, JSON.stringify(payload.new, null, 2))
+      return utils.frameSuccessResponse('remove-item-element', table, 200, 'Success', JSON.stringify(payload))
+    } else {
+      throw new Error('Cannot Update the item. Invalid Operation.')
+    }
+  } catch (err) {
+    return utils.frameErrorResponse('remove-item-element', table, 500, 'Error', err)
   }
-  console.log(JSON.stringify(deepCloneItem))
 }
 
-exports.removeItemElement = (db, table, keys, path, tag) => {
-  var elements = path.split(constants.input_keys_seperator)
-  var item = readItem(db, table, keys)
-  console.log(item)
-  var deepCloneItem = JSON.parse(JSON.stringify(item))
-
-  if(elements.length == 0 ) {
-    return
-  }
-
-  if(elements.length == 1) {
-    removeElement(elements[0], deepCloneItem)
-  } else {
-    var deepCloneItemPointer = traverseItem(elements, deepCloneItem)
-    removeElement(elements[0], deepCloneItemPointer)
-  }
-  console.log(JSON.stringify(deepCloneItem))
-}
-
-var createTable = (db, table) => {
+var createTableBasicStructure = (db, table) => {
   jfolder.createJfolder(utils.getTableBasePath(db), table)
 }
 
@@ -161,28 +221,12 @@ var createIndexSpace = (db, table, options) => {
 }
 
 var readMetaData = (db, table) => {
-  try {
     return jfiles.readData(utils.getTableBasePath(db) + table +
                     constants.meta_space_base_path + config.item_file)
-  } catch (err) {
-    throw err
-  }
 }
 
 var readItem = (db, table, keys) => {
-  var metaData = readMetaData(db, table)
-  var path = utils.getTableBasePath(db) + table +
-                    constants.keys_space_base_path + metaData.pk + config.file_sperator
-  path += keys[metaData.pk] + config.file_sperator
-  for(var key in metaData.sk) {
-    var sk = metaData.sk[key]
-    var skVal = keys[sk]
-    if(!skVal) {
-      throw new Error(sk + ' Missing')
-    }
-    path += sk + config.file_sperator + skVal + config.file_sperator
-   }
-   return jfiles.readData(path + config.item_file)
+  return jfiles.readData(getItemPath(db, table, keys) + config.item_file)
 }
 
 var traverseArrayItem = (el, deepCloneItem) => {
@@ -218,6 +262,7 @@ var addElement = (el, deepCloneItem, tag, obj) => {
   } else {
     elPointer = deepCloneItem[el]
   }
+
   if(elPointer instanceof Array) {
     elPointer.push(obj)
   } else {
@@ -232,4 +277,30 @@ var removeElement = (el, deepCloneItem) => {
   } else {
     delete deepCloneItem[el]
   }
+}
+
+var getItemPath = (db, table, keys, createIfNotExist) => {
+  var metaData = readMetaData(db, table)
+  var path = utils.getTableBasePath(db) + table + constants.keys_space_base_path +
+                      metaData.pk + config.file_sperator
+  path += keys[metaData.pk] + config.file_sperator
+  if(createIfNotExist && !fs.existsSync(path)) {
+    jfolder.createJfolder(path)
+  }
+  for(var key in metaData.sk) {
+    var sk = metaData.sk[key]
+    var skVal = keys[sk]
+    if(!skVal) {
+      throw new Error(sk + ' : Key Missing')
+    }
+    path += sk + config.file_sperator
+    if(createIfNotExist && !fs.existsSync(path)) {
+      jfolder.createJfolder(path)
+    }
+    path += skVal + config.file_sperator
+    if(createIfNotExist && !fs.existsSync(path)) {
+      jfolder.createJfolder(path)
+    }
+  }
+  return path
 }
