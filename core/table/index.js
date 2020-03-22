@@ -60,7 +60,6 @@ exports.getItem = (db, table, options) => {
   } catch (err) {
     return utils.frameErrorResponse('get-item', table, 500, 'Error', err)
   }
-
 }
 
 exports.deleteItem =  (db, table, options) => {
@@ -192,6 +191,14 @@ exports.removeItemElement = (db, table, options) => {
     }
   } catch (err) {
     return utils.frameErrorResponse('remove-item-element', table, 500, 'Error', err)
+  }
+}
+
+exports.getTableMetadata = (db, table) => {
+  try {
+    return utils.frameSuccessResponse('get-table-meta-data', table, 200, 'Success', JSON.stringify(readMetaData(db, table)))
+  } catch (err) {
+    return utils.frameErrorResponse('get-table-meta-data', table, 500, 'Error', err)
   }
 }
 
