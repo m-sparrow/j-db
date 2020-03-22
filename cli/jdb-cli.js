@@ -1,4 +1,4 @@
-var index = require('./index')
+var index = require('../index')
 
 var argv = require('yargs')
     .usage('Usage: $0 <command> [options]')
@@ -76,6 +76,9 @@ var argv = require('yargs')
         break
       case "remove-item-element":
         console.log(index.removeItemElement(argv.db, argv.table, JSON.parse(argv.options, 'utf8')))
+        break
+      case "get-table-metadata":
+        console.log(index.getTableMetadata(argv.db, argv.table))
         break
       deafult:
         console.log("Invalid command")

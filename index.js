@@ -46,6 +46,9 @@ exports.removeItemElement = (db, tableName, options) => {
   return table.removeItemElement(db, tableName, options)
 }
 
+exports.getTableMetadata = (db, tableName) => {
+  return table.getTableMetadata(db, tableName)
+}
 
 // Adding comments
 // db.createDB('MyDB2')
