@@ -9,6 +9,11 @@ Item - JSON document
 j-db acts as a core engine which is so flexible can be embedded into an existing application. [Cli tool] (https://github.com/m-sparrow/j-db-cli) and [API version] (https://github.com/m-sparrow/j-db-api) is also available as per the requirement. Cli tool is used to interact directly while with API version you can interact with the DB over Restful web services. Please look into the respective repositories for detailed documentation.
 
 ## Syntax
+```
+npm i j-db-core
+```
+
+## Syntax
 
 ###### Create DB
 Create new DB using the below
