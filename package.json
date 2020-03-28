@@ -6,6 +6,10 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/m-sparrow/j-db.git"
+  },
   "keywords": [
     "node",
     "npm",
@@ -13,6 +17,7 @@
     "nosql",
     "db"
   ],
-  "author": "Sree Hari",
-  "license": "ISC"
+  "author": "Sree Hari <hari.tinyblitz@gmail.com>",
+  "license": "ISC",
+  "homepage": "https://github.com/m-sparrow/j-db"
 }
