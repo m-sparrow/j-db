@@ -1,5 +1,5 @@
 {
-  "name": "j-db",
+  "name": "j-db-core",
   "version": "1.0.0",
   "description": "NexGen NoSQL DB",
   "main": "j-db.js",
