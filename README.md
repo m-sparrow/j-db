@@ -1,17 +1,17 @@
 # j-db
-j-db is a hackable NoSQL DB based on raw file system. j-db basically consists of a **Partition Key**, within Partition Key any number of **Secondary Partition Keys** and finally **Item**. In simpler terms, data is stored in the form of a tree. With such a design it is aimed to acheive the performance **O(1)** at any scale for create, fetech, update and deletion of Items.
+j-db is a hackable NoSQL DB based on raw file system. j-db basically consists of a **Partition Key**, within Partition Key any number of **Secondary Partition Keys** and finally **Item**. In simpler terms, data is stored in the form of a tree. With such a design it is aimed to achieve the performance **O(1)** at any scale for create, fetch, update and deletion of Items.
 
 ```
 Partition Key - String
 Secondary Partition Keys - String
 Item - JSON document
 ```
-j-db acts as a core engine which is so flexible can be embdded into an existing application. [Cli tool] (https://github.com/m-sparrow/j-db-cli) and [API version] (https://github.com/m-sparrow/j-db-api) is also availble as per the requirement. Cli tool is used to interact directly while with API version you can inetract with the DB over Restful webservices. Please look into the respective repositories for detailed documentation.
+j-db acts as a core engine which is so flexible can be embedded into an existing application. [Cli tool] (https://github.com/m-sparrow/j-db-cli) and [API version] (https://github.com/m-sparrow/j-db-api) is also available as per the requirement. Cli tool is used to interact directly while with API version you can interact with the DB over Restful web services. Please look into the respective repositories for detailed documentation.
 
 ## Syntax
 
 ###### Create DB
-Create new DB using the below 
+Create new DB using the below
 ```
 createDB (dbName)   
 
@@ -22,7 +22,7 @@ createDB (dbName)
 ###### Fetch list of DBs
 This method returns the list of databases.
 ```
-listDBs () 
+listDBs ()
 ```
 
 ###### Create Table
@@ -31,8 +31,8 @@ This methos is used to create a new table.
 createDB (dbName, tableName, schema)   
 
 #dbName - String        # Ex: MyDB
-#tableName - String     # Ex: MyTable 
-#schema - JSON 
+#tableName - String     # Ex: MyTable
+#schema - JSON
     {
       "pk": "pk1",
       "sk": {"0": "sk1", "1": "sk2"}
@@ -53,35 +53,35 @@ This method is used to scan the list of partition keys and secondary partition k
 ```
 scanKeys (dbName, tableName, keys)
 #dbName - String        # Ex: MyDB
-#tableName - String     # Ex: MyTable 
-#keys - String          # Ex: pk1?sk1?....?skn 
+#tableName - String     # Ex: MyTable
+#keys - String          # Ex: pk1?sk1?....?skn
 
 ```
 keys acts a cursor delimited with "?". This method returns "pk" or the list of "sk"s as per the given cursor.
 
-###### Fetch Table metadata 
+###### Fetch Table metadata
 This method is used to get the metadata of the given table.
 ```
 getTableMetadata (dbName, tableName)
 #dbName - String        # Ex: MyDB
-#tableName - String     # Ex: MyTable 
+#tableName - String     # Ex: MyTable
 ```
 
 ###### Table - Put Item
-This method is used to create new Item in the table. 
+This method is used to create new Item in the table.
 ```
 putItem (dbName, tableName, options)
 #dbName - String        # Ex: MyDB
-#tableName - String     # Ex: MyTable 
+#tableName - String     # Ex: MyTable
 #options - JSON
     {
       "keys":{
-         "pk" : "pk", 
-         "sk1":"sk1-1-value", 
+         "pk" : "pk",
+         "sk1":"sk1-1-value",
          "sk2" : "sk2-2-value"
-      }, 
+      },
       "item":{
-         "Key1":"Value1", 
+         "Key1":"Value1",
          "Key2": "Value2"
        }
     }
@@ -93,12 +93,12 @@ This method is used to fetch an Item from the table.
 ```
 getItem (dbName, tableName, options)
 #dbName - String        # Ex: MyDB
-#tableName - String     # Ex: MyTable 
+#tableName - String     # Ex: MyTable
 #options - JSON
     {
       "keys":{
-         "pk" : "pk", 
-         "sk1":"sk1-1-value", 
+         "pk" : "pk",
+         "sk1":"sk1-1-value",
          "sk2" : "sk2-2-value"
       }
     }
@@ -106,11 +106,11 @@ getItem (dbName, tableName, options)
 Keys (Partition Key and all Secondary Partition Keys) are mandatory.
 
 ###### Table - Update Item
-This method is used to update an existing Item in the table. 
+This method is used to update an existing Item in the table.
 ```
 updateItem (dbName, tableName, options)
 #dbName - String        # Ex: MyDB
-#tableName - String     # Ex: MyTable 
+#tableName - String     # Ex: MyTable
 #options - JSON
     {
         "keys": {
@@ -124,17 +124,17 @@ updateItem (dbName, tableName, options)
 ```
 Keys (Partition Key and all Secondary Partition Keys) are mandatory. Path and Obj is also mandatory. "?" is used as a delimiter to traverse through the JSON object while "#" is used to specify the element index if it is an array.
 
-###### Table - Detele Item
+###### Table - Delete Item
 This method is used to delete an Item in the table.
 ```
 deleteItem (dbName, tableName, options)
 #dbName - String        # Ex: MyDB
-#tableName - String     # Ex: MyTable 
+#tableName - String     # Ex: MyTable
 #options - JSON
     {
       "keys":{
-         "pk" : "pk", 
-         "sk1":"sk1-1-value", 
+         "pk" : "pk",
+         "sk1":"sk1-1-value",
          "sk2" : "sk2-2-value"
       }
     }
@@ -146,7 +146,7 @@ This method is used a new attribute or array value to an existing Item in the ta
 ```
 addItemElement (dbName, tableName, options)
 #dbName - String        # Ex: MyDB
-#tableName - String     # Ex: MyTable 
+#tableName - String     # Ex: MyTable
 #options - JSON
     {
         "keys": {
@@ -159,14 +159,14 @@ addItemElement (dbName, tableName, options)
         "obj": "value-to-be-added"
     }
 ```
-Keys (Partition Key and all Secondary Partition Keys) are mandatory. Path and Obj is also mandatory. "?" is used as a delimiter to traverse through the JSON object while "#" is used to specify the element index if it is an array. Tag is mandatory if the new eleemnt is an object (key-value) and optional if the new element is added to an array.
+Keys (Partition Key and all Secondary Partition Keys) are mandatory. Path and Obj is also mandatory. "?" is used as a delimiter to traverse through the JSON object while "#" is used to specify the element index if it is an array. Tag is mandatory if the new element is an object (key-value) and optional if the new element is added to an array.
 
 ###### Table - Remove an Element from an exiting Item
 This method is used to remove an attribute or array value from an existing Item in the table.
 ```
 removeItemElement (dbName, tableName, options)
 #dbName - String        # Ex: MyDB
-#tableName - String     # Ex: MyTable 
+#tableName - String     # Ex: MyTable
 #options - JSON
     {
         "keys": {
