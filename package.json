@@ -2,15 +2,22 @@
   "name": "j-db",
   "version": "1.0.0",
   "description": "NexGen NoSQL DB",
-  "main": "index.js",
+  "main": "j-db.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/m-sparrow/j-db.git"
+  },
+  "keywords": [
+    "node",
+    "npm",
+    "javascript",
+    "nosql",
+    "db"
+  ],
+  "author": "Sree Hari <hari.tinyblitz@gmail.com>",
   "license": "ISC",
-  "dependencies": {
-    "body-parser": "^1.19.0",
-    "express": "^4.17.1",
-    "yargs": "^15.3.0"
-  }
+  "homepage": "https://github.com/m-sparrow/j-db"
 }
