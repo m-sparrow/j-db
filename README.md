@@ -118,13 +118,13 @@ updateItem (dbName, tableName, options)
 #tableName - String     # Ex: MyTable
 #options - JSON
     {
-        "keys": {
-            "id": "id1",
-            "sk2": "sk2-2-value",
-            "sk1": "sk1-1-value"
-        },
-        "path": "attr1?attr2?attr3#2?attr4",
-        "obj": "value-to-be-updated"
+      "keys": {
+         "id": "id1",
+         "sk2": "sk2-2-value",
+         "sk1": "sk1-1-value"
+       },
+       "path": "attr1?attr2?attr3#2?attr4",
+       "obj": "value-to-be-updated"
     }
 ```
 Keys (Partition Key and all Secondary Partition Keys) are mandatory. Path and Obj is also mandatory. "?" is used as a delimiter to traverse through the JSON object while "#" is used to specify the element index if it is an array.
@@ -154,14 +154,14 @@ addItemElement (dbName, tableName, options)
 #tableName - String     # Ex: MyTable
 #options - JSON
     {
-        "keys": {
-            "id": "id1",
-            "sk2": "sk2-2-value",
-            "sk1": "sk1-1-value"
-        },
-        "path": "attr1?attr2?attr3#2?attr4"
-        "tag": "tag"
-        "obj": "value-to-be-added"
+      "keys": {
+         "id": "id1",
+         "sk2": "sk2-2-value",
+         "sk1": "sk1-1-value"
+       },
+       "path": "attr1?attr2?attr3#2?attr4"
+       "tag": "tag"
+       "obj": "value-to-be-added"
     }
 ```
 Keys (Partition Key and all Secondary Partition Keys) are mandatory. Path and Obj is also mandatory. "?" is used as a delimiter to traverse through the JSON object while "#" is used to specify the element index if it is an array. Tag is mandatory if the new element is an object (key-value) and optional if the new element is added to an array.
@@ -174,10 +174,10 @@ removeItemElement (dbName, tableName, options)
 #tableName - String     # Ex: MyTable
 #options - JSON
     {
-        "keys": {
-            "id": "id1",
-            "sk2": "sk2-2-value",
-            "sk1": "sk1-1-value"
+       "keys": {
+          "id": "id1",
+          "sk2": "sk2-2-value",
+          "sk1": "sk1-1-value"
         },
         "path": "attr1?attr2?attr3#2?attr4"
     }
