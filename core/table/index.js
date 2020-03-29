@@ -62,6 +62,32 @@ exports.getItem = (db, table, options) => {
   }
 }
 
+exports.getItemAt = (db, table, options) => {
+  try {
+    var itemPath = getItemPath(db, table, options.keys)
+    var payload  = {}
+    var deepCloneItem = readItem(db, table, options.keys)
+
+    if(options.path) {
+      var elements = options.path.split(constants.input_keys_seperator)
+      if(elements.length == 0 ) {
+        payload = deepCloneItem
+      } else if(elements.length == 1) {
+        payload = getElement(elements[0], deepCloneItem)
+      } else {
+        var deepCloneItemPointer = traverseItem(elements, deepCloneItem)
+        payload = getElement(elements[0], deepCloneItemPointer)
+      }
+    } else {
+      payload = deepCloneItem
+    }
+
+    return utils.frameSuccessResponse('get-item-at', table, 200, 'Success', JSON.stringify(payload))
+  } catch (err) {
+    return utils.frameErrorResponse('get-item-at', table, 500, 'Error', err)
+  }
+}
+
 exports.deleteItem =  (db, table, options) => {
   try {
     var keys = options.keys
@@ -133,19 +159,27 @@ exports.addItemElement = (db, table, options) => {
   try {
     var itemPath = getItemPath(db, table, options.keys)
     var payload  = {}
-    var elements = options.path.split(constants.input_keys_seperator)
     var item = readItem(db, table, options.keys)
     var deepCloneItem = JSON.parse(JSON.stringify(item))
 
-    if(elements.length == 0 ) {
-      return
-    }
+    if(options.path) {
+      var elements = options.path.split(constants.input_keys_seperator)
+      if(elements.length == 0 ) {
+        return
+      }
 
-    if(elements.length == 1) {
-      addElement(elements[0], deepCloneItem, options.tag, options.obj)
+      if(elements.length == 1) {
+        addElement(elements[0], deepCloneItem, options.tag, options.obj)
+      } else {
+        var deepCloneItemPointer = traverseItem(elements, deepCloneItem)
+        addElement(elements[0], deepCloneItemPointer, options.tag, options.obj)
+      }
     } else {
-      var deepCloneItemPointer = traverseItem(elements, deepCloneItem)
-      addElement(elements[0], deepCloneItemPointer, options.tag, options.obj)
+      if(deepCloneItem instanceof Array) {
+        deepCloneItem.push(options.obj)
+      } else {
+        deepCloneItem[options.tag] = options.obj
+      }
     }
 
     payload.old = item
@@ -275,6 +309,16 @@ var addElement = (el, deepCloneItem, tag, obj) => {
   } else {
     elPointer[tag] = obj
   }
+}
+
+var getElement = (el, deepCloneItem) => {
+  var elSplit = el.split(constants.input_keys_array_seperator)
+  if(elSplit.length > 1) {
+    elPointer = deepCloneItem[elSplit[0]][parseInt(elSplit[1])]
+  } else {
+    elPointer = deepCloneItem[el]
+  }
+  return elPointer
 }
 
 var removeElement = (el, deepCloneItem) => {

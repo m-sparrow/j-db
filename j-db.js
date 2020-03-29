@@ -30,6 +30,10 @@ exports.getItem = (db, tableName, options) => {
   return table.getItem(db, tableName, options)
 }
 
+exports.getItemAt = (db, tableName, options) => {
+  return table.getItemAt(db, tableName, options)
+}
+
 exports.updateItem = (db, tableName, options) => {
   return table.updateItem(db, tableName, options)
 }
