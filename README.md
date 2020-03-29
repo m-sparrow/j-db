@@ -8,7 +8,7 @@ Item - JSON document
 ```
 j-db acts as a core engine which is so flexible can be embedded into an existing application. [Cli tool] (https://github.com/m-sparrow/j-db-cli) and [API version] (https://github.com/m-sparrow/j-db-api) is also available as per the requirement. Cli tool is used to interact directly while with API version you can interact with the DB over Restful web services. Please look into the respective repositories for detailed documentation.
 
-## Syntax
+## NPM Install
 ```
 npm i j-db-core
 ```
@@ -57,6 +57,7 @@ listTables(dbName)
 This method is used to scan the list of partition keys and secondary partition keys in the given table.
 ```
 scanKeys (dbName, tableName, keys)
+
 #dbName - String        # Ex: MyDB
 #tableName - String     # Ex: MyTable
 #keys - String          # Ex: pk1?sk1?....?skn
@@ -68,6 +69,7 @@ keys acts a cursor delimited with "?". This method returns "pk" or the list of "
 This method is used to get the metadata of the given table.
 ```
 getTableMetadata (dbName, tableName)
+
 #dbName - String        # Ex: MyDB
 #tableName - String     # Ex: MyTable
 ```
@@ -76,6 +78,7 @@ getTableMetadata (dbName, tableName)
 This method is used to create new Item in the table.
 ```
 putItem (dbName, tableName, options)
+
 #dbName - String        # Ex: MyDB
 #tableName - String     # Ex: MyTable
 #options - JSON
@@ -97,6 +100,7 @@ Keys (Partition Key and all Secondary Partition Keys) are mandatory. Item is man
 This method is used to fetch an Item from the table.
 ```
 getItem (dbName, tableName, options)
+
 #dbName - String        # Ex: MyDB
 #tableName - String     # Ex: MyTable
 #options - JSON
@@ -110,10 +114,50 @@ getItem (dbName, tableName, options)
 ```
 Keys (Partition Key and all Secondary Partition Keys) are mandatory.
 
+###### Table - Get Item at a particular position
+This method is used to get
+```
+getItemAt (dbName, tableName, options)
+
+#dbName - String        # Ex: MyDB
+#tableName - String     # Ex: MyTable
+#options - JSON
+    {
+      "keys": {
+         "id": "id1",
+         "sk2": "sk2-2-value",
+         "sk1": "sk1-1-value"
+       },
+       "path": "attr1?attr2?attr3#2?attr4"
+    }
+```
+Keys (Partition Key and all Secondary Partition Keys) are mandatory. Path is also mandatory, Path acts as a cursor to specify the position of the attributes in the Item. "?" is used as a delimiter to traverse through the JSON object while "#" is used to specify the element index if it is an array.
+
+###### Table - Update Item
+This method is used to get
+```
+updateItem (dbName, tableName, options)
+
+#dbName - String        # Ex: MyDB
+#tableName - String     # Ex: MyTable
+#options - JSON
+    {
+      "keys": {
+         "id": "id1",
+         "sk2": "sk2-2-value",
+         "sk1": "sk1-1-value"
+       },
+       "path": "attr1?attr2?attr3#2?attr4",
+       "obj": "value-to-be-updated"
+    }
+```
+Keys (Partition Key and all Secondary Partition Keys) are mandatory. Path and Obj is also mandatory. "?" is used as a delimiter to traverse through the JSON object while "#" is used to specify the element index if it is an array.
+
 ###### Table - Update Item
 This method is used to update an existing Item in the table.
 ```
 updateItem (dbName, tableName, options)
+
 #dbName - String        # Ex: MyDB
 #tableName - String     # Ex: MyTable
 #options - JSON
@@ -133,6 +177,7 @@ Keys (Partition Key and all Secondary Partition Keys) are mandatory. Path and Ob
 This method is used to delete an Item in the table.
 ```
 deleteItem (dbName, tableName, options)
+
 #dbName - String        # Ex: MyDB
 #tableName - String     # Ex: MyTable
 #options - JSON
@@ -150,6 +195,7 @@ Keys (Partition Key and all Secondary Partition Keys) are mandatory.
 This method is used a new attribute or array value to an existing Item in the table.
 ```
 addItemElement (dbName, tableName, options)
+
 #dbName - String        # Ex: MyDB
 #tableName - String     # Ex: MyTable
 #options - JSON
@@ -170,6 +216,7 @@ Keys (Partition Key and all Secondary Partition Keys) are mandatory. Path and Ob
 This method is used to remove an attribute or array value from an existing Item in the table.
 ```
 removeItemElement (dbName, tableName, options)
+
 #dbName - String        # Ex: MyDB
 #tableName - String     # Ex: MyTable
 #options - JSON
