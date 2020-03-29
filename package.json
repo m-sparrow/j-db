@@ -1,6 +1,6 @@
 {
   "name": "j-db-core",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Hackable NoSQL DB",
   "main": "j-db.js",
   "scripts": {
@@ -19,8 +19,5 @@
   ],
   "author": "Sree Hari <hari.tinyblitz@gmail.com>",
   "license": "ISC",
-  "homepage": "https://github.com/m-sparrow/j-db",
-  "dependencies": {
-    "express": "^4.17.1"
-  }
+  "homepage": "https://github.com/m-sparrow/j-db"
 }
